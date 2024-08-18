@@ -60,3 +60,31 @@ gradrate_combined_data$gradrate4yr <- round(gradrate_combined_data$gradrate4yr, 
 #クリーニング後データの出力
 gradrate_clean_data <- data.frame(gradrate_combined_data)
 write_csv(gradrate_clean_data, file = "01_cleaning/cleaning_data/gradrate_clean_data.csv")
+
+
+#----(c)Covariates Dataの整形----
+
+#生データの読み込み
+covariates_raw_data <- read_excel("01_cleaning/covariates_raw_data/covariates.xlsx")
+
+#列名の変更
+names(covariates_raw_data)[names(covariates_raw_data) == "university_id"] <- "unitid"
+
+#aaaaの削除
+covariates_raw_data$unitid <- gsub("aaaa", "", covariates_raw_data$unitid)
+
+#wide型への拡張
+covariates_wide_data <- pivot_wider(covariates_raw_data, names_from = category, values_from = value)
+
+#使用するデータ年を揃える(1991:1993 & 1995:2010)
+covariates_wide_data <- filter(covariates_wide_data, !(year %in% c(1987:1990, 1994, 2011:2016)))
+
+#unitidを揃える(outcomeデータに合わせて)
+covariates_wide_data$unitid <- as.double(covariates_wide_data$unitid)
+covariates_clean_data <- semi_join(covariates_wide_data, gradrate_clean_data, by = "unitid")
+
+#クリーニング後データの出力
+write_csv(covariates_clean_data, file = "01_cleaning/cleaning_data/covariates_clean_data.csv")
+
+
+
