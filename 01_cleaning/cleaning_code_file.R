@@ -87,4 +87,16 @@ covariates_clean_data <- semi_join(covariates_wide_data, gradrate_clean_data, by
 write_csv(covariates_clean_data, file = "01_cleaning/cleaning_data/covariates_clean_data.csv")
 
 
+#----(d)Master Dataの作成----
 
+#semester_clean_dataとgradrate_clean_dataを結合
+semester_clean_data$unitid <- as.double(semester_clean_data$unitid)
+semester_clean_data$year <- as.double(semester_clean_data$year)
+semester_gradrate_clean_data <- left_join(semester_clean_data, gradrate_clean_data, by = c("unitid", "year"))
+
+#すべてのデータを統合
+covariates_clean_data$year <- as.double(covariates_clean_data$year)
+master_clean_data <- left_join(semester_gradrate_clean_data, covariates_clean_data, by = c("unitid", "year"))
+
+#クリーニング後データの出力
+write_csv(master_clean_data, file = "01_cleaning/cleaning_data/master_clean_data.csv")
